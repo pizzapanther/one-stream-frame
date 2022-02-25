@@ -1,3 +1,9 @@
 from django.contrib import admin
 
-# Register your models here.
+from stream_frame.models import ServiceAccount
+
+
+@admin.register(ServiceAccount)
+class ServiceAccountAdmin(admin.ModelAdmin):
+  list_display = ('name', 'modified')
+  list_filter = ('modified',)
