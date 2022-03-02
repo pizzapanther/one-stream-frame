@@ -2,6 +2,7 @@ import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
 
+from django.conf import settings
 from django.db import models
 
 
@@ -53,12 +54,27 @@ class Channel(models.Model):
 
     video = self.get_video(vid)
 
-    if not video['status']['embeddable']:
+    if video['status']['embeddable']:
+      embedded = VideoEmbedOn(video_id=vid)
+      embedded.save()
+      return embedded
+
+    else:
       self.client.videos().update(part='status', body={"id": vid, "status": {"embeddable": True}}).execute()
       embedded = VideoEmbedOn(video_id=vid)
       embedded.save()
       return embedded
 
+  @property
+  def embed_code(self):
+    template =  """<div id="stream-frame">
+  <h2>Waiting for Stream to Start</h2>
+</div>
+<script src="{base}/stream-frame/channel_{id}.js"></script>"""
+
+    template = template.replace('{id}', str(self.id))
+    template = template.replace('{base}', settings.BASE_URL)
+    return template
 
 class VideoEmbedOn(models.Model):
   video_id = models.CharField(max_length=255, db_index=True)
@@ -67,4 +83,4 @@ class VideoEmbedOn(models.Model):
   created = models.DateTimeField(auto_now_add=True)
 
   def __str__(self):
-    return self.name
+    return self.video_id

@@ -1,11 +1,12 @@
 from django import http
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
+from django.template.response import TemplateResponse
 
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 
-from stream_frame.models import OAuthCredentials
+from stream_frame.models import OAuthCredentials, Channel
 
 SCOPES = scopes = [
   "https://www.googleapis.com/auth/youtube",
@@ -54,3 +55,27 @@ def auth_ret(request):
   }
   creds.save()
   return http.HttpResponseRedirect('/admin/stream_frame/oauthcredentials/')
+
+
+def channel_status(request, cid):
+  channel = get_object_or_404(Channel, id=cid)
+  vid = channel.find_live()
+
+  embed = None
+  status = 'offline'
+  if vid:
+    data = channel.get_video(vid)
+    embed = data['player']['embedHtml']
+    status = 'live'
+
+  return http.JsonResponse({'status': status, 'embed': embed})
+
+
+def channel_html(request, cid):
+  channel = get_object_or_404(Channel, id=cid)
+  return TemplateResponse(request, 'stream_frame/framegen.html', {'channel': channel})
+
+
+def channel_js(request, cid):
+  channel = get_object_or_404(Channel, id=cid)
+  return TemplateResponse(request, 'stream_frame/framegen.js', {'channel': channel}, content_type="text/javascript")
