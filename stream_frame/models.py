@@ -18,9 +18,8 @@ class OAuthCredentials(models.Model):
 
 
 class Channel(models.Model):
-  # channel_id = "UCmo8zL1ZhvT4vYNzhSAuAEw"
   name = models.CharField(max_length=70)
-  channel_id = models.CharField(max_length=70)
+  channel_id = models.CharField(max_length=255)
   creds = models.ForeignKey(OAuthCredentials, on_delete=models.CASCADE)
 
   modified = models.DateTimeField(auto_now=True)
@@ -48,7 +47,24 @@ class Channel(models.Model):
     return resp.get('items')[0]
 
   def allow_embed(self, vid):
+    embedded = VideoEmbedOn.objects.filter(video_id=vid).first()
+    if embedded:
+      return
+
     video = self.get_video(vid)
 
     if not video['status']['embeddable']:
       self.client.videos().update(part='status', body={"id": vid, "status": {"embeddable": True}}).execute()
+      embedded = VideoEmbedOn(video_id=vid)
+      embedded.save()
+      return embedded
+
+
+class VideoEmbedOn(models.Model):
+  video_id = models.CharField(max_length=255, db_index=True)
+
+  modified = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(auto_now_add=True)
+
+  def __str__(self):
+    return self.name
