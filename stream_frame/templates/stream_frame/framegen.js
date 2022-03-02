@@ -1,6 +1,6 @@
 
 function fetch_status() {
-  fetch('http://localhost:8000/stream-frame/status_{{ channel.id }}.json?ts=' + Date.now())
+  fetch('{{ request.scheme }}://{{ request.get_host }}/stream-frame/status_{{ channel.id }}.json?ts=' + Date.now())
     .then(response => response.json())
     .then((data) => {
       if (data.status == 'live') {
