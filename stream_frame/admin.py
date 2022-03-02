@@ -10,5 +10,5 @@ class OAuthAdmin(admin.ModelAdmin):
   list_filter = ('modified',)
 
   def authorize(self, obj):
-    if obj and not obj.token:
+    if obj and not obj.token and obj.client_secret:
       return mark_safe(f'<a href="/stream-frame/start-auth/{obj.id}/">Authorize</a>')
