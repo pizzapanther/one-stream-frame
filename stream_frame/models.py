@@ -1,9 +1,9 @@
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
-
 import googleapiclient.discovery
 
 from django.db import models
+
 
 class OAuthCredentials(models.Model):
   name = models.CharField(max_length=70)
@@ -17,26 +17,19 @@ class OAuthCredentials(models.Model):
     return self.name
 
 
-class Channel:
-  channel_id = "UCmo8zL1ZhvT4vYNzhSAuAEw"
-  api_key = "AIzaSyA0ObJTTUOJreXFfLGD91p3GqpYIn02qzs"
+class Channel(models.Model):
+  # channel_id = "UCmo8zL1ZhvT4vYNzhSAuAEw"
+  name = models.CharField(max_length=70)
+  channel_id = models.CharField(max_length=70)
+  creds = models.ForeignKey(OAuthCredentials, on_delete=models.CASCADE)
 
-  @property
-  def service_account(self):
-    return ServiceAccount.objects.all().first()
+  def __str__(self):
+    return self.name
 
   @property
   def client(self):
-    scopes = [
-      "https://www.googleapis.com/auth/youtube",
-      "https://www.googleapis.com/auth/youtube.readonly",
-      "https://www.googleapis.com/auth/youtube.force-ssl",
-      "https://www.googleapis.com/auth/youtube.upload",
-    ]
-
     if not getattr(self, '_client', None):
-      creds = service_account.Credentials.from_service_account_info(
-        self.service_account.credentials, scopes=scopes, subject="paul.m.bailey@gmail.com")
+      creds = google.oauth2.credentials.Credentials(**self.creds.token)
       self._client = googleapiclient.discovery.build('youtube', 'v3', credentials=creds)
 
     return self._client
@@ -53,10 +46,6 @@ class Channel:
 
   def allow_embed(self, vid):
     video = self.get_video(vid)
-    print(video)
 
     if not video['status']['embeddable']:
-      print('NARF')
       self.client.videos().update(part='status', body={"id": vid, "status": {"embeddable": True}}).execute()
-
-    return resp
