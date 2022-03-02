@@ -23,6 +23,9 @@ class Channel(models.Model):
   channel_id = models.CharField(max_length=70)
   creds = models.ForeignKey(OAuthCredentials, on_delete=models.CASCADE)
 
+  modified = models.DateTimeField(auto_now=True)
+  created = models.DateTimeField(auto_now_add=True)
+
   def __str__(self):
     return self.name
 
