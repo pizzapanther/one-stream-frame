@@ -62,7 +62,9 @@ def channel_status(request, cid):
   cache_key = f'live-vid-{cid}'
   ret = cache.get(cache_key)
   if ret:
-    return http.JsonResponse(ret)
+    resp = http.JsonResponse(ret)
+    response['Access-Control-Allow-Origin'] = '*'
+    return resp
 
   ttl = 30
   channel = get_object_or_404(Channel, id=cid)
@@ -79,7 +81,9 @@ def channel_status(request, cid):
 
   ret = {'status': status, 'embed': embed}
   cache.set(cache_key, ret, ttl)
-  return http.JsonResponse(ret)
+  resp = http.JsonResponse(ret)
+  response['Access-Control-Allow-Origin'] = '*'
+  return resp
 
 
 def channel_html(request, cid):
