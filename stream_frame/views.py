@@ -1,4 +1,5 @@
 from django import http
+from django.core.cache import cache
 from django.shortcuts import render
 from django.shortcuts import get_object_or_404
 from django.template.response import TemplateResponse
@@ -58,18 +59,27 @@ def auth_ret(request):
 
 
 def channel_status(request, cid):
+  cache_key = f'live-vid-{cid}'
+  ret = cache.get(cache_key)
+  if ret:
+    return http.JsonResponse(ret)
+
+  ttl = 30
   channel = get_object_or_404(Channel, id=cid)
   vid = channel.find_live()
-
   embed = None
   status = 'offline'
+
   if vid:
     channel.allow_embed(vid)
     data = channel.get_video(vid)
     embed = data['player']['embedHtml']
     status = 'live'
+    ttl = 60 * 5
 
-  return http.JsonResponse({'status': status, 'embed': embed})
+  ret = {'status': status, 'embed': embed}
+  cache.set(cache_key, ret, ttl)
+  return http.JsonResponse(ret)
 
 
 def channel_html(request, cid):

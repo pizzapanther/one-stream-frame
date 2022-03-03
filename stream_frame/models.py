@@ -1,3 +1,5 @@
+import time
+
 import google.oauth2.credentials
 import google_auth_oauthlib.flow
 import googleapiclient.discovery
@@ -66,6 +68,9 @@ class Channel(models.Model):
       self.client.videos().update(part='status', body={"id": vid, "status": {"embeddable": True}}).execute()
       embedded = VideoEmbedOn(video_id=vid)
       embedded.save()
+      time.sleep(1)
+      del self._video
+
       return embedded
 
   @property
