@@ -64,6 +64,7 @@ def channel_status(request, cid):
   embed = None
   status = 'offline'
   if vid:
+    channel.allow_embed(vid)
     data = channel.get_video(vid)
     embed = data['player']['embedHtml']
     status = 'live'

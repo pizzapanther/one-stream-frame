@@ -44,13 +44,16 @@ class Channel(models.Model):
       return items[0]['id']['videoId']
 
   def get_video(self, vid):
-    resp = self.client.videos().list(part='snippet,status,player', id=vid).execute()
-    return resp.get('items')[0]
+    if not getattr(self, '_video', None):
+      resp = self.client.videos().list(part='snippet,status,player', id=vid).execute()
+      self._video = resp.get('items')[0]
+
+    return self._video
 
   def allow_embed(self, vid):
     embedded = VideoEmbedOn.objects.filter(video_id=vid).first()
     if embedded:
-      return
+      return embedded
 
     video = self.get_video(vid)
 
