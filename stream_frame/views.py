@@ -63,7 +63,7 @@ def channel_status(request, cid):
   ret = cache.get(cache_key)
   if ret:
     resp = http.JsonResponse(ret)
-    response['Access-Control-Allow-Origin'] = '*'
+    resp['Access-Control-Allow-Origin'] = '*'
     return resp
 
   ttl = 30
@@ -82,7 +82,7 @@ def channel_status(request, cid):
   ret = {'status': status, 'embed': embed}
   cache.set(cache_key, ret, ttl)
   resp = http.JsonResponse(ret)
-  response['Access-Control-Allow-Origin'] = '*'
+  resp['Access-Control-Allow-Origin'] = '*'
   return resp
 
 
