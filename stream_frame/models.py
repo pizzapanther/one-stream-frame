@@ -75,7 +75,7 @@ class Channel(models.Model):
 
   @property
   def embed_code(self):
-    template =  """<div id="stream-frame">
+    template =  """<div id="stream-frame" style="width: 100%; height: 100%; color: white; background-color: black;">
   <h2>Waiting for Stream to Start</h2>
 </div>
 <script src="{base}/stream-frame/channel_{id}.js"></script>"""
