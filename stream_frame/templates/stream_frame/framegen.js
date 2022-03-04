@@ -9,7 +9,7 @@ function fetch_status() {
         setTimeout(fetch_status, 10000);
       }
     })
-    .catch(e => alert('Error fetching stream status'));
+    .catch(e => alert('Error fetching stream status; refresh page.'));
 }
 
 fetch_status()
